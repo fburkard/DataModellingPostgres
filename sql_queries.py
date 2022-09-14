@@ -22,6 +22,8 @@ songplay_table_create = ("Create Table If not Exists songplays(songplay_id SERIA
     artist_id varchar, \
     session_id int, location varchar, user_agent varchar);")
 
+time_table_create_tmp = ("CREATE Table If not Exists tmp_time(start_time TIMESTAMP, hour int, day int, week int, month int, year int, weekday varchar) ON COMMIT DROP;")
+
 # INSERT RECORDS
 
 songplay_table_insert = ("""
@@ -48,17 +50,22 @@ artist_table_insert = ("""
     ON CONFLICT (artist_id) DO NOTHING;
     """)
 
-time_table_insert = ("""
-    COPY time(start_time, hour, day, week, month, year, weekday) FROM time_df
-    VALUES (%s, %s, %s, %s, %s, %s, %s)
-    ON CONFLICT (start_time) DO NOTHING;
-    """)
+time_table_insert_tmp = ("""INSERT INTO time 
+SELECT DISTINCT ON (start_time) * FROM tmp_time ON CONFLICT DO NOTHING;
+DROP TABLE IF EXISTS tmp_time
+""")
 
-time_table_insert = ("""
-    INSERT INTO time(start_time, hour, day, week, month, year, weekday)
-    VALUES (%s, %s, %s, %s, %s, %s, %s)
-    ON CONFLICT (start_time) DO NOTHING;
-    """)
+#time_table_insert = ("""
+#    COPY time(start_time, hour, day, week, month, year, weekday) FROM time_df
+#    VALUES (%s, %s, %s, %s, %s, %s, %s)
+#    ON CONFLICT (start_time) DO NOTHING;
+#    """)
+#
+#time_table_insert = ("""
+#    INSERT INTO time(start_time, hour, day, week, month, year, weekday)
+#    VALUES (%s, %s, %s, %s, %s, %s, %s)
+#    ON CONFLICT (start_time) DO NOTHING;
+#    """)
 
 # FIND SONGS
 
@@ -93,6 +100,6 @@ song_select = ("""SELECT songs.song_id, artists.artist_id FROM ((songs INNER JOI
 
 # QUERY LISTS
 
-create_table_queries = [user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create,]
+create_table_queries = [user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create, time_table_create_tmp]
 drop_table_queries = [songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
 song_select_queries = [song_select]

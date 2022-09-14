@@ -21,6 +21,23 @@ def process_song_file(cur, filepath):
     artist_data = list(df[['artist_id', 'artist_name', 'artist_location', 'artist_latitude', 'artist_longitude']].values[0])
     cur.execute(artist_table_insert, artist_data)
 
+import io
+def copy_from_stringio(cur, filepath):
+    df = pd.read_json(filepath, lines=True)
+
+    # filter by NextSong action
+    filterdata = ["NextSong"]
+    df = df[df.page.isin(filterdata)]
+    t = pd.to_datetime(df['ts']) 
+    time_data = [t, t.dt.hour, t.dt.day, t.dt.isocalendar().week, t.dt.month, t.dt.year, t.dt.weekday]
+    column_labels = ['timestamp', 'hour', 'day', 'week', 'month', 'year', 'weekday']
+    test = dict(zip(column_labels, time_data))
+    time_df = pd.DataFrame.from_dict(test)
+    buffer = io.StringIO()
+    time_df.to_csv(buffer, index= False, header=False)
+    buffer.seek(0)
+    #print(buffer.read())
+    cur.copy_from(buffer, 'tmp_time', sep=",")
 
 def process_log_file(cur, filepath):
     """
@@ -43,9 +60,9 @@ def process_log_file(cur, filepath):
     test = dict(zip(column_labels, time_data))
     time_df = pd.DataFrame.from_dict(test)
 
-    for i, row in time_df.iterrows():
-        cur.execute(time_table_insert, list(row))
-
+    #for i, row in time_df.iterrows():
+    #    cur.execute(time_table_insert, list(row))
+    cur.execute(time_table_insert_tmp) 
     # load user table
     user_df = df[['userId', 'firstName', 'lastName', 'gender', 'level']]
 
@@ -69,6 +86,8 @@ def process_log_file(cur, filepath):
         songplay_data = (pd.to_datetime(row.ts, unit='ms'), int(row.userId), row.level, songid, artistid, row.sessionId, row.location, row.userAgent)
         cur.execute(songplay_table_insert, songplay_data)
 
+
+ 
 
 def process_data(cur, conn, filepath, func):
     """ 
@@ -99,10 +118,10 @@ def main():
     """
     conn = psycopg2.connect("host=127.0.0.1 port=5432 dbname=postgres user=postgres password=udacitytest")
     cur = conn.cursor()
-
+    process_data(cur, conn, filepath='data/log_data', func=copy_from_stringio)
     process_data(cur, conn, filepath='data/song_data', func=process_song_file)
     process_data(cur, conn, filepath='data/log_data', func=process_log_file)
-
+    
     conn.close()
 
 
