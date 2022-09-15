@@ -22,6 +22,9 @@ def process_song_file(cur, filepath):
     cur.execute(artist_table_insert, artist_data)
 
 import io
+
+#helpful was: https://naysan.ca/2020/06/21/pandas-to-postgresql-using-psycopg2-copy_from/
+# helpful was also: https://knowledge.udacity.com/questions/426431
 def copy_from_stringio(cur, filepath):
     """
     this function accesses the available log files and extracts the columns which are important for the time table

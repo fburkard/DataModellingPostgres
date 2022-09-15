@@ -67,6 +67,7 @@ DROP TABLE IF EXISTS tmp_time
 
 # FIND SONGS
 
+# checked this variable with udacity knowledge
 song_select = ("""SELECT songs.song_id, artists.artist_id FROM ((songs INNER JOIN artists ON songs.artist_id = artists.artist_id))\
                   WHERE songs.title= (%s) AND artists.name= (%s) AND songs.duration= (%s) \
 """)
