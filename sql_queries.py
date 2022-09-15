@@ -5,6 +5,7 @@ user_table_drop = "Drop Table If Exists users"
 song_table_drop = "Drop Table If Exists songs"
 artist_table_drop = "Drop Table If Exists artists"
 time_table_drop = "Drop Table If Exists time"
+time_table_temp_drop = "Drop Table If Exists tmp_time"
 
 # CREATE TABLES
 
@@ -22,7 +23,9 @@ songplay_table_create = ("Create Table If not Exists songplays(songplay_id SERIA
     artist_id varchar, \
     session_id int, location varchar, user_agent varchar);")
 
-time_table_create_tmp = ("CREATE Temp Table If not Exists tmp_time(start_time TIMESTAMP, hour int, day int, week int, month int, year int, weekday varchar) ON COMMIT DROP;")
+# this was a try to create a tmp_table along with all other tables. then I noticed that the tmp_table is deleted after conn.closes(). 
+# hence one has to put it in the code where it should be executed
+#time_table_create_tmp = ("CREATE TEMP Table If not Exists tmp_time(start_time TIMESTAMP, hour int, day int, week int, month int, year int, weekday varchar) ON COMMIT DROP;")
 
 # INSERT RECORDS
 
@@ -52,15 +55,10 @@ artist_table_insert = ("""
 
 time_table_insert_tmp = ("""INSERT INTO time 
 SELECT DISTINCT ON (start_time) * FROM tmp_time ON CONFLICT DO NOTHING;
+DROP TABLE IF EXISTS tmp_time
 """)
 
-#DROP TABLE IF EXISTS tmp_time
-#time_table_insert = ("""
-#    COPY time(start_time, hour, day, week, month, year, weekday) FROM time_df
-#    VALUES (%s, %s, %s, %s, %s, %s, %s)
-#    ON CONFLICT (start_time) DO NOTHING;
-#    """)
-#
+# this function has to be uncommented when not using "copy_from"
 #time_table_insert = ("""
 #    INSERT INTO time(start_time, hour, day, week, month, year, weekday)
 #    VALUES (%s, %s, %s, %s, %s, %s, %s)
@@ -100,6 +98,6 @@ song_select = ("""SELECT songs.song_id, artists.artist_id FROM ((songs INNER JOI
 
 # QUERY LISTS
 
-create_table_queries = [user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create, time_table_create_tmp]
-drop_table_queries = [songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
+create_table_queries = [user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create]
+drop_table_queries = [songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop, time_table_temp_drop]
 song_select_queries = [song_select]

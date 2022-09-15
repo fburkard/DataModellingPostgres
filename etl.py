@@ -23,6 +23,12 @@ def process_song_file(cur, filepath):
 
 import io
 def copy_from_stringio(cur, filepath):
+    """
+    this function accesses the available log files and extracts the columns which are important for the time table
+    for each file the available data is inserted into the time table using copy_from and then inserted into the correct time_table with upsert commands
+    """
+    time_table_create_tmp = ("CREATE TEMP Table If not Exists tmp_time(start_time TIMESTAMP, hour int, day int, week int, month int, year int, weekday varchar) ON COMMIT DROP;")
+    cur.execute(time_table_create_tmp)
     df = pd.read_json(filepath, lines=True)
 
     # filter by NextSong action
@@ -42,8 +48,8 @@ def copy_from_stringio(cur, filepath):
 
 def process_log_file(cur, filepath):
     """
-    this function accesses the available log files and extracts the columns which are important for the time table and user table
-    for each file the available data is inserted into the time and user table
+    this function accesses the available log files and extracts the columns which are important for the songplay table and user table
+    for each file the available data is inserted into the user and songplay table
     """
     # open log file
     df = pd.read_json(filepath, lines=True)
@@ -61,9 +67,12 @@ def process_log_file(cur, filepath):
     test = dict(zip(column_labels, time_data))
     time_df = pd.DataFrame.from_dict(test)
 
+    # uncomment this loop for removing "copy_from"
+    # this loop was initially used for inserting data into time_table. It can be used when improved version of copy_from is not used
     #for i, row in time_df.iterrows():
     #    cur.execute(time_table_insert, list(row))
-    #cur.execute(time_table_insert_tmp) 
+
+     
     # load user table
     user_df = df[['userId', 'firstName', 'lastName', 'gender', 'level']]
 
