@@ -22,7 +22,7 @@ songplay_table_create = ("Create Table If not Exists songplays(songplay_id SERIA
     artist_id varchar, \
     session_id int, location varchar, user_agent varchar);")
 
-time_table_create_tmp = ("CREATE Table If not Exists tmp_time(start_time TIMESTAMP, hour int, day int, week int, month int, year int, weekday varchar) ON COMMIT DROP;")
+time_table_create_tmp = ("CREATE Temp Table If not Exists tmp_time(start_time TIMESTAMP, hour int, day int, week int, month int, year int, weekday varchar) ON COMMIT DROP;")
 
 # INSERT RECORDS
 
@@ -52,9 +52,9 @@ artist_table_insert = ("""
 
 time_table_insert_tmp = ("""INSERT INTO time 
 SELECT DISTINCT ON (start_time) * FROM tmp_time ON CONFLICT DO NOTHING;
-DROP TABLE IF EXISTS tmp_time
 """)
 
+#DROP TABLE IF EXISTS tmp_time
 #time_table_insert = ("""
 #    COPY time(start_time, hour, day, week, month, year, weekday) FROM time_df
 #    VALUES (%s, %s, %s, %s, %s, %s, %s)

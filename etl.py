@@ -38,6 +38,7 @@ def copy_from_stringio(cur, filepath):
     buffer.seek(0)
     #print(buffer.read())
     cur.copy_from(buffer, 'tmp_time', sep=",")
+    cur.execute(time_table_insert_tmp) 
 
 def process_log_file(cur, filepath):
     """
@@ -62,7 +63,7 @@ def process_log_file(cur, filepath):
 
     #for i, row in time_df.iterrows():
     #    cur.execute(time_table_insert, list(row))
-    cur.execute(time_table_insert_tmp) 
+    #cur.execute(time_table_insert_tmp) 
     # load user table
     user_df = df[['userId', 'firstName', 'lastName', 'gender', 'level']]
 

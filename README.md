@@ -11,7 +11,8 @@ This database enables queries on song plays which are being accessed by differen
 sql_queries.py: creates tables and insert statements for the database
 test.ipynb: basic testing for the created tables and inserted data.
 etl.ipynb: executes insert statements for individual tables. Attention: not all files are selected to insert data.
-etl.py: selects all data from files and inserts selected data into the database. Attention: All files are selected.
+etl.py: selects all data from files and inserts selected data into the database. Attention: All files are selected. 
+For entering data from log_files to the time_table the improved version of "copy_from" is used.
 
 
 ## State and justify your database schema design and ETL pipeline
